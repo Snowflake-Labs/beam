@@ -33,12 +33,16 @@ import org.apache.beam.sdk.io.snowflake.data.SnowflakeTableSchema;
 import org.apache.beam.sdk.io.snowflake.enums.CreateDisposition;
 import org.apache.beam.sdk.io.snowflake.enums.WriteDisposition;
 import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Implemenation of {@link SnowflakeServices.BatchService} used in production. */
 @SuppressWarnings({
   "nullness" // TODO(https://github.com/apache/beam/issues/20497)
 })
 public class SnowflakeBatchServiceImpl implements SnowflakeServices.BatchService {
+  private static final Logger LOG = LoggerFactory.getLogger(SnowflakeBatchServiceImpl.class);
+
   private static final String SNOWFLAKE_GCS_PREFIX = "gcs://";
   private static final String GCS_PREFIX = "gs://";
 
@@ -80,13 +84,18 @@ public class SnowflakeBatchServiceImpl implements SnowflakeServices.BatchService
       source = getTablePath(database, schema, table);
     }
 
+    String fileFormatOptions =
+        String.format(
+            "(TYPE=CSV COMPRESSION=GZIP FIELD_OPTIONALLY_ENCLOSED_BY='%s' NULL_IF=())",
+            getASCIICharRepresentation(config.getQuotationMark()));
+
     String copyQuery =
         String.format(
-            "COPY INTO '%s' FROM %s STORAGE_INTEGRATION=%s FILE_FORMAT=(TYPE=CSV COMPRESSION=GZIP FIELD_OPTIONALLY_ENCLOSED_BY='%s');",
+            "COPY INTO '%s' FROM %s STORAGE_INTEGRATION=%s FILE_FORMAT=%s;",
             getProperBucketDir(stagingBucketDir),
             source,
             storageIntegrationName,
-            getASCIICharRepresentation(config.getQuotationMark()));
+            fileFormatOptions);
 
     runStatement(copyQuery, getConnection(dataSourceProviderFn), null);
 
@@ -130,25 +139,30 @@ public class SnowflakeBatchServiceImpl implements SnowflakeServices.BatchService
     filesList = filesList.stream().map(e -> String.format("'%s'", e)).collect(Collectors.toList());
     String files = String.join(", ", filesList);
     files = files.replaceAll(stagingBucketDir, "");
+    files = String.format("(%s)", files);
     DataSource dataSource = dataSourceProviderFn.apply(null);
 
     prepareTableAccordingCreateDisposition(dataSource, table, tableSchema, createDisposition);
     prepareTableAccordingWriteDisposition(dataSource, table, writeDisposition);
 
+    String fileFormatOptions =
+        String.format(
+            "(TYPE=CSV FIELD_OPTIONALLY_ENCLOSED_BY='%s' COMPRESSION=GZIP NULL_IF=())",
+            getASCIICharRepresentation(config.getQuotationMark()));
     if (!storageIntegrationName.isEmpty()) {
       query =
           String.format(
-              "COPY INTO %s FROM %s FILES=(%s) FILE_FORMAT=(TYPE=CSV FIELD_OPTIONALLY_ENCLOSED_BY='%s' COMPRESSION=GZIP) STORAGE_INTEGRATION=%s;",
+              "COPY INTO %s FROM %s FILES=%s FILE_FORMAT=%s STORAGE_INTEGRATION=%s;",
               getTablePath(database, schema, table),
               getProperBucketDir(source),
               files,
-              getASCIICharRepresentation(config.getQuotationMark()),
+              fileFormatOptions,
               storageIntegrationName);
     } else {
       query =
           String.format(
-              "COPY INTO %s FROM %s FILES=(%s) FILE_FORMAT=(TYPE=CSV FIELD_OPTIONALLY_ENCLOSED_BY='%s' COMPRESSION=GZIP);",
-              table, source, files, getASCIICharRepresentation(config.getQuotationMark()));
+              "COPY INTO %s FROM %s FILES=%s FILE_FORMAT=%s;",
+              table, source, files, fileFormatOptions);
     }
 
     runStatement(query, dataSource.getConnection(), null);
@@ -280,6 +294,7 @@ public class SnowflakeBatchServiceImpl implements SnowflakeServices.BatchService
   private static void runStatement(
       String query, Connection connection, Consumer<ResultSet> resultSetMethod)
       throws SQLException {
+    LOG.info("Running statement: {}", query);
     PreparedStatement statement = connection.prepareStatement(query);
     try {
       if (resultSetMethod != null) {
