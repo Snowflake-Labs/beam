@@ -65,8 +65,8 @@ import org.junit.Test;
  * "--storageIntegrationName=<STORAGE INTEGRATION NAME>",
  * "--snowPipe=<SNOWPIPE NAME>",
  * "--numberOfRecords=<INTEGER>",
- * "--runner=DirectRunner"]'
- * --tests org.apache.beam.sdk.io.snowflake.test.SnowflakeStreamingIOIT.writeStreamThenRead
+ * "--runner=DirectRunner"]' \
+ * --tests org.apache.beam.sdk.io.snowflake.test.StreamingSnowflakeIOIT.writeStreamThenRead \
  * -DintegrationTestRunner=direct
  * </pre>
  */

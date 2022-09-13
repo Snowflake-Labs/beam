@@ -31,7 +31,7 @@ import org.apache.beam.sdk.io.snowflake.enums.WriteDisposition;
 import org.apache.beam.sdk.io.snowflake.services.SnowflakeBatchServiceConfig;
 import org.apache.beam.sdk.io.snowflake.services.SnowflakeServices;
 
-/** Fake implementation of {@link SnowflakeService} used in tests. */
+/** Fake implementation of {@link SnowflakeServices.BatchService} used in tests. */
 public class FakeSnowflakeBatchServiceImpl implements SnowflakeServices.BatchService {
 
   @Override

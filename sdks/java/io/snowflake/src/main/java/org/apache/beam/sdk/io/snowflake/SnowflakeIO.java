@@ -23,6 +23,7 @@ import static org.apache.beam.vendor.guava.v26_0_jre.com.google.common.base.Prec
 import com.google.auto.value.AutoValue;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.PrivateKey;
@@ -555,7 +556,7 @@ public class SnowflakeIO {
      * files.
      */
     public static class MapCsvToStringArrayFn extends DoFn<String, String[]> {
-      private ValueProvider<String> quoteChar;
+      private final ValueProvider<String> quoteChar;
 
       public MapCsvToStringArrayFn(ValueProvider<String> quoteChar) {
         this.quoteChar = quoteChar;
@@ -564,7 +565,11 @@ public class SnowflakeIO {
       @ProcessElement
       public void processElement(ProcessContext c) throws IOException {
         String csvLine = c.element();
-        CSVParser parser = new CSVParserBuilder().withQuoteChar(quoteChar.get().charAt(0)).build();
+        CSVParser parser =
+            new CSVParserBuilder()
+                .withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS)
+                .withQuoteChar(quoteChar.get().charAt(0))
+                .build();
         String[] parts = parser.parseLine(csvLine);
         c.output(parts);
       }
