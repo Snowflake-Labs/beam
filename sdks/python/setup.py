@@ -271,7 +271,7 @@ if __name__ == '__main__':
             'cryptography>=36.0.0',
           ],
           'gcp': [
-            'cachetools>=3.1.0,<5',
+            'cachetools>=3.1.0,<6',
             'google-apitools>=0.5.31,<0.5.32',
             # Transitive dep. Required for google-cloud-spanner v1.
             # See: https://github.com/apache/beam/issues/22454
