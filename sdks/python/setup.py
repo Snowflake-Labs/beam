@@ -272,7 +272,7 @@ if __name__ == '__main__':
           ],
           'gcp': [
             'cachetools>=3.1.0,<5',
-            'google-apitools>=0.5.31,<0.5.32',
+            'google-apitools>=0.5.31,<0.5.33',
             # Transitive dep. Required for google-cloud-spanner v1.
             # See: https://github.com/apache/beam/issues/22454
             'google-api-core!=2.8.2,<3',
