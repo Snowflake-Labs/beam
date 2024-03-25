@@ -326,7 +326,7 @@ if __name__ == '__main__':
             'azure-storage-blob >=12.3.2',
             'azure-core >=1.7.0',
           ],
-          'dataframe': ['pandas>=1.0,<1.5']
+          'dataframe': ['pandas>=1.0,<2.3']
       },
       zip_safe=False,
       # PyPI package information.
