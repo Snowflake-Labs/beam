@@ -32,7 +32,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2 // TODO(danoliveira): Fully replace this with google.golang.org/protobuf
 	github.com/google/go-cmp v0.5.8
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.7
 	github.com/linkedin/goavro v2.1.0+incompatible
 	github.com/nightlyone/lockfile v1.0.0
