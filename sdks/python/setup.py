@@ -231,7 +231,7 @@ if __name__ == '__main__':
         'pymongo>=3.8.0,<4.0.0',
         'protobuf>=3.12.2,<4',
         'proto-plus>=1.7.1,<2',
-        'pydot>=1.2.0,<2',
+        'pydot>=1.2.0,<4',
         'python-dateutil>=2.8.0,<3',
         'pytz>=2018.3',
         'regex>=2020.6.8',
